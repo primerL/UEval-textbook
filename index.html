@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Textbook Review System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        .controls {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: #2c3e50;
+            white-space: nowrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .items-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            max-width: 100%;
+        }
+
+        .item-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            width: 100%;
+        }
+
+        .item-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .item-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .item-id {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .item-type {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            display: inline-block;
+        }
+
+        .item-content {
+            padding: 20px;
+        }
+
+        .prompt {
+            font-size: 1rem;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .reference-section {
+            margin-bottom: 15px;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #34495e;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title::before {
+            content: "📋";
+            font-size: 1.2rem;
+        }
+
+        .reference-text {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #2c3e50;
+        }
+
+        .reference-images {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .reference-image {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .reference-image:hover {
+            transform: scale(1.05);
+        }
+
+        .reference-image img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .rubrics-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+        }
+
+        .rubrics-header {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .rubrics-header::before {
+            content: "📝";
+            font-size: 1.3rem;
+        }
+
+        .rubric-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid #3498db;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .rubric-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .rubric-criterion {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .rubric-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .rubric-tag {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .model-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+        }
+
+        .model-header {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .model-results {
+            margin-top: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+        }
+
+        .results-header {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .results-header::before {
+            content: "📊";
+            font-size: 1rem;
+        }
+
+        .result-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 0;
+            border-bottom: 1px solid #f1f3f4;
+            font-size: 0.85rem;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-item.passed {
+            color: #28a745;
+        }
+
+        .result-item.failed {
+            color: #dc3545;
+        }
+
+        .model-text {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #28a745;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #2c3e50;
+            white-space: pre-wrap;
+            margin-bottom: 15px;
+        }
+
+        .model-images {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .model-image {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .model-image:hover {
+            transform: scale(1.05);
+        }
+
+        .model-image img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .review-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-approve {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .btn-approve:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(40, 167, 69, 0.3);
+        }
+
+        .btn-reject {
+            background: linear-gradient(135deg, #dc3545, #e74c3c);
+            color: white;
+        }
+
+        .btn-reject:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(220, 53, 69, 0.3);
+        }
+
+        .btn-export {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            color: white;
+            margin-left: auto;
+        }
+
+        .btn-export:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(108, 117, 125, 0.3);
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 1px solid #f5c6cb;
+        }
+
+        .bottom-export {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        /* 图片查看大图功能 */
+        .image-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            cursor: pointer;
+        }
+
+        .modal-content {
+            margin: auto;
+            display: block;
+            width: 90%;
+            max-width: 1200px;
+            max-height: 90%;
+            object-fit: contain;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #bbb;
+        }
+
+        .image-clickable {
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+        }
+
+        .image-clickable:hover {
+            opacity: 0.8;
+        }
+
+        /* 状态显示样式 */
+        .current-status {
+            margin-left: 15px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .current-status.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .current-status.approved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .current-status.rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .filter-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                min-width: auto;
+            }
+
+            .items-grid {
+                gap: 20px;
+            }
+
+            .review-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn-export {
+                margin-left: 0;
+                margin-top: 10px;
+            }
+
+            .current-status {
+                margin-left: 0;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 Textbook Review System</h1>
+            <p>教科书内容多模态评估系统</p>
+        </div>
+
+        <div class="stats" id="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="total-count">0</div>
+                <div class="stat-label">总项目数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="pending-count">0</div>
+                <div class="stat-label">待审核</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="approved-count">0</div>
+                <div class="stat-label">已通过</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="rejected-count">0</div>
+                <div class="stat-label">已拒绝</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>状态筛选:</label>
+                    <select id="status-filter">
+                        <option value="all">全部</option>
+                        <option value="pending">待审核</option>
+                        <option value="approved">已通过</option>
+                        <option value="rejected">已拒绝</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>任务类型:</label>
+                    <select id="task-filter">
+                        <option value="all">全部</option>
+                        <option value="scientific_explanation">科学解释</option>
+                    </select>
+                </div>
+                <div class="search-box">
+                    <input type="text" id="search-input" placeholder="搜索提示内容..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem;">
+                </div>
+            </div>
+            <button class="btn btn-export" onclick="reviewSystem.exportResults()">
+                📊 导出审核结果
+            </button>
+        </div>
+
+        <div id="items-container">
+            <div class="loading">正在加载数据...</div>
+        </div>
+
+        <!-- 底部导出按钮 -->
+        <div class="bottom-export">
+            <button class="btn btn-export" onclick="reviewSystem.exportResults()">
+                📊 导出所有审核结果
+            </button>
+        </div>
+    </div>
+
+    <!-- 图片查看大图模态框 -->
+    <div id="imageModal" class="image-modal" onclick="closeModal()">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="modalImage">
+    </div>
+
+    <script>
+        class TextbookReviewSystem {
+            constructor() {
+                this.data = [];
+                this.filteredData = [];
+                this.reviews = this.loadReviews();
+                this.init();
+            }
+
+            async init() {
+                await this.loadData();
+                this.setupEventListeners();
+                this.renderItems();
+                this.updateStats();
+            }
+
+            async loadData() {
+                try {
+                    const response = await fetch('merged_textbook_data.json');
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const jsonData = await response.json();
+                    
+                    if (!Array.isArray(jsonData)) {
+                        throw new Error('数据格式错误：期望数组格式');
+                    }
+                    
+                    this.data = jsonData;
+                    this.filteredData = [...this.data];
+                    console.log(`成功加载 ${this.data.length} 条textbook数据`);
+                } catch (error) {
+                    console.error('加载数据失败:', error);
+                    this.showError(`数据加载失败: ${error.message}`);
+                }
+            }
+
+            showError(message) {
+                const container = document.getElementById('items-container');
+                container.innerHTML = `<div class="error">${message}</div>`;
+            }
+
+            setupEventListeners() {
+                document.getElementById('status-filter').addEventListener('change', () => this.filterItems());
+                document.getElementById('task-filter').addEventListener('change', () => this.filterItems());
+                document.getElementById('search-input').addEventListener('input', () => this.filterItems());
+            }
+
+            filterItems() {
+                const statusFilter = document.getElementById('status-filter').value;
+                const taskFilter = document.getElementById('task-filter').value;
+                const searchTerm = document.getElementById('search-input').value.toLowerCase();
+
+                this.filteredData = this.data.filter(item => {
+                    const statusMatch = statusFilter === 'all' || this.getReviewStatus(item.id) === statusFilter;
+                    const taskMatch = taskFilter === 'all' || item.task_type === taskFilter;
+                    const searchMatch = searchTerm === '' || 
+                        item.prompt.toLowerCase().includes(searchTerm) ||
+                        (item.text_ref && item.text_ref.toLowerCase().includes(searchTerm));
+
+                    return statusMatch && taskMatch && searchMatch;
+                });
+
+                this.renderItems();
+                this.updateStats();
+            }
+
+            getReviewStatus(itemId) {
+                const review = this.reviews[itemId];
+                if (!review) return 'pending';
+                if (review.approved) return 'approved';
+                if (review.rejected) return 'rejected';
+                return 'pending';
+            }
+
+            getStatusDisplay(itemId) {
+                const status = this.getReviewStatus(itemId);
+                const statusText = {
+                    'pending': '⏳ 待审核',
+                    'approved': '✅ 已通过',
+                    'rejected': '❌ 已拒绝'
+                }[status];
+                return `<span class="current-status ${status}">${statusText}</span>`;
+            }
+
+            renderItems() {
+                const container = document.getElementById('items-container');
+                
+                if (this.filteredData.length === 0) {
+                    container.innerHTML = '<div class="loading">没有找到匹配的项目</div>';
+                    return;
+                }
+
+                container.innerHTML = this.filteredData.map(item => this.createItemCard(item)).join('');
+            }
+
+            createItemCard(item) {
+                const status = this.getReviewStatus(item.id);
+                const statusClass = `status-${status}`;
+                const statusText = {
+                    'pending': '待审核',
+                    'approved': '已通过',
+                    'rejected': '已拒绝'
+                }[status];
+
+                return `
+                    <div class="item-card">
+                        <div class="item-header">
+                            <div class="item-id">项目 #${item.id}</div>
+                            <div class="item-type">${item.task_type}</div>
+                            <div class="status-badge ${statusClass}" style="margin-left: auto;">${statusText}</div>
+                        </div>
+                        <div class="item-content">
+                            <div class="prompt">${item.prompt}</div>
+                            
+                            ${this.renderReferenceSection(item)}
+                            ${this.renderRubrics(item)}
+                            ${this.renderModelSection(item, 'GPT', item.GPT_text, item.GPT_image, item.GPT_text_result, item.GPT_image_result)}
+                            ${this.renderModelSection(item, 'Gemini', item.Gemini_text, item.Gemini_image, item.Gemini_text_result, item.Gemini_image_result)}
+                        </div>
+                        <div class="review-controls">
+                            <button class="btn btn-approve" onclick="reviewSystem.approveItem('${item.id}')">
+                                ✅ 通过
+                            </button>
+                            <button class="btn btn-reject" onclick="reviewSystem.rejectItem('${item.id}')">
+                                ❌ 拒绝
+                            </button>
+                            <div class="current-status" id="status-${item.id}">
+                                ${this.getStatusDisplay(item.id)}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderReferenceSection(item) {
+                let html = '';
+                
+                if (item.text_ref) {
+                    html += `
+                        <div class="reference-section">
+                            <div class="section-title">参考文本</div>
+                            <div class="reference-text">${item.text_ref}</div>
+                        </div>
+                    `;
+                }
+
+                if (item.image_ref && item.image_ref.length > 0) {
+                    html += `
+                        <div class="reference-section">
+                            <div class="section-title">参考图片</div>
+                            <div class="reference-images">
+                                ${item.image_ref.map(img => `
+                                    <div class="reference-image">
+                                        <img src="${img}" alt="参考图片" class="image-clickable" onclick="openModal('${img}')" onerror="this.style.display='none'">
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                return html;
+            }
+
+            renderRubrics(item) {
+                let html = '';
+                
+                // 渲染文本rubrics
+                if (item.text_rubrics && item.text_rubrics.length > 0) {
+                    html += `
+                        <div class="rubrics-section">
+                            <div class="rubrics-header">文本评估标准</div>
+                            ${item.text_rubrics.map(rubric => `
+                                <div class="rubric-item">
+                                    <div class="rubric-criterion">${rubric.criterion}</div>
+                                    <div class="rubric-tags">
+                                        ${rubric.tags ? rubric.tags.map(tag => `<span class="rubric-tag">${tag}</span>`).join('') : ''}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+
+                // 渲染图像rubrics
+                if (item.image_rubrics && item.image_rubrics.length > 0) {
+                    html += `
+                        <div class="rubrics-section">
+                            <div class="rubrics-header">图像评估标准</div>
+                            ${item.image_rubrics.map(rubric => `
+                                <div class="rubric-item">
+                                    <div class="rubric-criterion">${rubric.criterion}</div>
+                                    <div class="rubric-tags">
+                                        ${rubric.tags ? rubric.tags.map(tag => `<span class="rubric-tag">${tag}</span>`).join('') : ''}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+
+                return html;
+            }
+
+            renderModelSection(item, modelName, textData, imageData, textResult, imageResult) {
+                if (!textData && !imageData) {
+                    return '';
+                }
+
+                return `
+                    <div class="model-section">
+                        <div class="model-header">🤖 ${modelName} 输出</div>
+                        ${textData ? `<div class="model-text">${textData}</div>` : ''}
+                        ${this.renderModelImages(imageData)}
+                        ${this.renderModelResults(textResult, imageResult)}
+                    </div>
+                `;
+            }
+
+            renderModelImages(imageData) {
+                if (!imageData) return '';
+
+                // 处理字符串和数组格式
+                const images = Array.isArray(imageData) ? imageData : [imageData];
+                
+                return `
+                    <div class="model-images">
+                        ${images.map(img => `
+                            <div class="model-image">
+                                <img src="${img}" alt="模型输出图片" class="image-clickable" onclick="openModal('${img}')" onerror="this.style.display='none'">
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            renderModelResults(textResult, imageResult) {
+                if (!textResult && !imageResult) return '';
+
+                let html = '<div class="model-results">';
+                
+                if (textResult && textResult.length > 0) {
+                    html += `
+                        <div class="results-header">文本评估结果</div>
+                        ${textResult.map(result => `
+                            <div class="result-item ${result.criteria_met ? 'passed' : 'failed'}">
+                                ${result.criteria_met ? '✅' : '❌'} ${result.criterion}
+                            </div>
+                        `).join('')}
+                    `;
+                }
+
+                if (imageResult && imageResult.length > 0) {
+                    html += `
+                        <div class="results-header">图像评估结果</div>
+                        ${imageResult.map(result => `
+                            <div class="result-item ${result.criteria_met ? 'passed' : 'failed'}">
+                                ${result.criteria_met ? '✅' : '❌'} ${result.criterion}
+                            </div>
+                        `).join('')}
+                    `;
+                }
+
+                html += '</div>';
+                return html;
+            }
+
+            approveItem(itemId) {
+                this.reviews[itemId] = { approved: true, rejected: false, timestamp: new Date().toISOString() };
+                this.saveReviews();
+                this.updateItemStatus(itemId);
+                this.updateStats();
+            }
+
+            rejectItem(itemId) {
+                this.reviews[itemId] = { approved: false, rejected: true, timestamp: new Date().toISOString() };
+                this.saveReviews();
+                this.updateItemStatus(itemId);
+                this.updateStats();
+            }
+
+            updateItemStatus(itemId) {
+                const statusElement = document.getElementById(`status-${itemId}`);
+                if (statusElement) {
+                    statusElement.innerHTML = this.getStatusDisplay(itemId);
+                }
+            }
+
+            updateStats() {
+                const total = this.data.length;
+                const pending = this.data.filter(item => this.getReviewStatus(item.id) === 'pending').length;
+                const approved = this.data.filter(item => this.getReviewStatus(item.id) === 'approved').length;
+                const rejected = this.data.filter(item => this.getReviewStatus(item.id) === 'rejected').length;
+
+                document.getElementById('total-count').textContent = total;
+                document.getElementById('pending-count').textContent = pending;
+                document.getElementById('approved-count').textContent = approved;
+                document.getElementById('rejected-count').textContent = rejected;
+            }
+
+            loadReviews() {
+                try {
+                    const saved = localStorage.getItem('textbook-reviews');
+                    return saved ? JSON.parse(saved) : {};
+                } catch (error) {
+                    console.error('加载审核记录失败:', error);
+                    return {};
+                }
+            }
+
+            saveReviews() {
+                try {
+                    localStorage.setItem('textbook-reviews', JSON.stringify(this.reviews));
+                } catch (error) {
+                    console.error('保存审核记录失败:', error);
+                }
+            }
+
+            exportResults() {
+                const results = this.data.map(item => {
+                    const review = this.reviews[item.id] || {};
+                    return {
+                        id: item.id,
+                        prompt: item.prompt,
+                        task_type: item.task_type,
+                        approved: review.approved || false,
+                        rejected: review.rejected || false,
+                        timestamp: review.timestamp || null
+                    };
+                });
+
+                // 导出JSON
+                const jsonData = JSON.stringify(results, null, 2);
+                this.downloadFile(jsonData, 'textbook_review_results.json', 'application/json');
+
+                // 导出CSV
+                const csvData = this.convertToCSV(results);
+                this.downloadFile(csvData, 'textbook_review_results.csv', 'text/csv');
+            }
+
+            convertToCSV(data) {
+                const headers = ['ID', 'Prompt', 'Task Type', 'Approved', 'Rejected', 'Timestamp'];
+                const rows = data.map(item => [
+                    item.id,
+                    `"${item.prompt.replace(/"/g, '""')}"`,
+                    item.task_type,
+                    item.approved,
+                    item.rejected,
+                    item.timestamp || ''
+                ]);
+
+                return [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
+            }
+
+            downloadFile(content, filename, mimeType) {
+                const blob = new Blob([content], { type: mimeType });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+        }
+
+        // 初始化系统
+        const reviewSystem = new TextbookReviewSystem();
+
+        // 图片查看大图功能
+        function openModal(imageSrc) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            modal.style.display = 'block';
+            modalImg.src = imageSrc;
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('imageModal');
+            modal.style.display = 'none';
+        }
+
+        // 按ESC键关闭模态框
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
