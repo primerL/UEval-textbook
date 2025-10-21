@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Textbook Review System</title>
+    <!-- 添加marked.js库用于Markdown渲染 -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -548,6 +550,115 @@
             color: #721c24;
         }
 
+
+        /* Markdown样式支持 */
+        .markdown-content {
+            line-height: 1.6;
+        }
+
+        .markdown-content h1, .markdown-content h2, .markdown-content h3, 
+        .markdown-content h4, .markdown-content h5, .markdown-content h6 {
+            margin: 1em 0 0.5em 0;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .markdown-content h1 { font-size: 1.5em; }
+        .markdown-content h2 { font-size: 1.3em; }
+        .markdown-content h3 { font-size: 1.2em; }
+        .markdown-content h4 { font-size: 1.1em; }
+        .markdown-content h5 { font-size: 1em; }
+        .markdown-content h6 { font-size: 0.9em; }
+
+        .markdown-content p {
+            margin: 0.8em 0;
+            line-height: 1.6;
+        }
+
+        .markdown-content ul, .markdown-content ol {
+            margin: 0.8em 0;
+            padding-left: 1.5em;
+        }
+
+        .markdown-content li {
+            margin: 0.3em 0;
+        }
+
+        .markdown-content blockquote {
+            margin: 1em 0;
+            padding: 0.8em 1em;
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            border-radius: 0 4px 4px 0;
+            font-style: italic;
+            color: #555;
+        }
+
+        .markdown-content code {
+            background: #f1f3f4;
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9em;
+            color: #d63384;
+        }
+
+        .markdown-content pre {
+            background: #f8f9fa;
+            padding: 1em;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 1em 0;
+            border: 1px solid #e9ecef;
+        }
+
+        .markdown-content pre code {
+            background: none;
+            padding: 0;
+            color: #333;
+        }
+
+        .markdown-content table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 1em 0;
+        }
+
+        .markdown-content th, .markdown-content td {
+            border: 1px solid #ddd;
+            padding: 0.6em;
+            text-align: left;
+        }
+
+        .markdown-content th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .markdown-content a {
+            color: #3498db;
+            text-decoration: none;
+        }
+
+        .markdown-content a:hover {
+            text-decoration: underline;
+        }
+
+        .markdown-content strong {
+            font-weight: 600;
+        }
+
+        .markdown-content em {
+            font-style: italic;
+        }
+
+        .markdown-content hr {
+            border: none;
+            border-top: 2px solid #e9ecef;
+            margin: 2em 0;
+        }
+
+
         @media (max-width: 768px) {
             .container {
                 padding: 15px;
@@ -666,6 +777,16 @@
                 this.reviews = this.loadReviews();
                 this.init();
             }
+            // 渲染Markdown内容
+            renderMarkdown(text) {
+                if (!text) return '';
+                try {
+                    return marked.parse(text);
+                } catch (error) {
+                    console.error('Markdown渲染错误:', error);
+                    return text; // 如果渲染失败，返回原始文本
+                }
+            }
 
             async init() {
                 await this.loadData();
@@ -771,7 +892,7 @@
                             <div class="status-badge ${statusClass}" style="margin-left: auto;">${statusText}</div>
                         </div>
                         <div class="item-content">
-                            <div class="prompt">${item.prompt}</div>
+                            <div class="prompt markdown-content">${this.renderMarkdown(item.prompt)}</div>
                             
                             ${this.renderReferenceSection(item)}
                             ${this.renderRubrics(item)}
@@ -800,7 +921,7 @@
                     html += `
                         <div class="reference-section">
                             <div class="section-title">参考文本</div>
-                            <div class="reference-text">${item.text_ref}</div>
+                            <div class="reference-text markdown-content">${this.renderMarkdown(item.text_ref)}</div>
                         </div>
                     `;
                 }
@@ -833,7 +954,7 @@
                             <div class="rubrics-header">文本评估标准</div>
                             ${item.text_rubrics.map(rubric => `
                                 <div class="rubric-item">
-                                    <div class="rubric-criterion">${rubric.criterion}</div>
+                                    <div class="rubric-criterion markdown-content">${this.renderMarkdown(rubric.criterion)}</div>
                                     <div class="rubric-tags">
                                         ${rubric.tags ? rubric.tags.map(tag => `<span class="rubric-tag">${tag}</span>`).join('') : ''}
                                     </div>
@@ -850,7 +971,7 @@
                             <div class="rubrics-header">图像评估标准</div>
                             ${item.image_rubrics.map(rubric => `
                                 <div class="rubric-item">
-                                    <div class="rubric-criterion">${rubric.criterion}</div>
+                                    <div class="rubric-criterion markdown-content">${this.renderMarkdown(rubric.criterion)}</div>
                                     <div class="rubric-tags">
                                         ${rubric.tags ? rubric.tags.map(tag => `<span class="rubric-tag">${tag}</span>`).join('') : ''}
                                     </div>
@@ -871,7 +992,7 @@
                 return `
                     <div class="model-section">
                         <div class="model-header">🤖 ${modelName} 输出</div>
-                        ${textData ? `<div class="model-text">${textData}</div>` : ''}
+                        ${textData ? `<div class="model-text markdown-content">${this.renderMarkdown(textData)}</div>` : ''}
                         ${this.renderModelImages(imageData)}
                         ${this.renderModelResults(textResult, imageResult)}
                     </div>
@@ -905,7 +1026,7 @@
                         <div class="results-header">文本评估结果</div>
                         ${textResult.map(result => `
                             <div class="result-item ${result.criteria_met ? 'passed' : 'failed'}">
-                                ${result.criteria_met ? '✅' : '❌'} ${result.criterion}
+                                ${result.criteria_met ? '✅' : '❌'} <span class="markdown-content">${this.renderMarkdown(result.criterion)}</span>
                             </div>
                         `).join('')}
                     `;
@@ -916,7 +1037,7 @@
                         <div class="results-header">图像评估结果</div>
                         ${imageResult.map(result => `
                             <div class="result-item ${result.criteria_met ? 'passed' : 'failed'}">
-                                ${result.criteria_met ? '✅' : '❌'} ${result.criterion}
+                                ${result.criteria_met ? '✅' : '❌'} <span class="markdown-content">${this.renderMarkdown(result.criterion)}</span>
                             </div>
                         `).join('')}
                     `;
